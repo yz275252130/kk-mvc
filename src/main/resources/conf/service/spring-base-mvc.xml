@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd">
+
+	<!-- 配置自动扫描的包 只扫描 Controller 相关注解 -->
+	<context:component-scan base-package="com.yz"
+		use-default-filters="false">
+		<context:include-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+		<context:include-filter type="annotation"
+			expression="org.springframework.web.bind.annotation.ControllerAdvice" />
+	</context:component-scan>
+
+	<!-- 配置静态资源 -->
+	<mvc:default-servlet-handler />
+	<!-- 注解 开启 -->
+	<mvc:annotation-driven />
+	<!-- 视图解析器 -->
+	<!-- bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"> 
+		<property name="cache" value="true" /> <property name="prefix" value="" /> 
+		<property name="suffix" value=".jsp" /> <property name="contentType" value="text/html;charset=UTF-8" 
+		/> </bean -->
+	<bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+		<property name="mediaTypes">
+			<value>
+				html=text/html
+				json=application/json
+			</value>
+		</property>
+		<property name="defaultContentType" value="text/html" />
+		     <!-- 设置为true以忽略对Accept Header的支持 --><!-- 手机端 和 pc端 不一样 -->
+		<property name="ignoreAcceptHeader" value="true" />
+		<property name="favorPathExtension" value="true" />
+		<property name="favorParameter" value="false" />
+	</bean>
+
+	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+		<property name="order" value="0" />
+		<property name="contentNegotiationManager" ref="contentNegotiationManager" />
+		<property name="viewResolvers">
+			<list>
+				<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+					<property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+					<property name="cache" value="true" />
+					<property name="prefix" value="" />
+					<property name="suffix" value=".jsp" />
+					<property name="contentType" value="text/html;charset=UTF-8" />
+				</bean>
+			</list>
+		</property>
+		<property name="defaultViews">
+			<list>
+				<bean class="com.alibaba.fastjson.support.spring.FastJsonJsonView">
+				<property  name="extractValueFromSingleKeyModel" value="true" />
+				<property name="charset" value="UTF-8" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter" />
+
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- one of the properties available; the maximum file size in bytes -->
+		<property name="maxUploadSize" value="9999999999" />
+		<!--resolveLazily属性启用是为了推迟文件解析，以便在控件层中捕获文件大小异常 -->
+		<property name="resolveLazily" value="true" />
+	</bean>
+</beans>
